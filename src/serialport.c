@@ -14,6 +14,7 @@ static BOOL     setCommunicationParity(HANDLE handle, unsigned parity);
 static BOOL     setCommunicationStopBits(HANDLE handle, unsigned stopBits);
 static BOOL     isVaildParity(unsigned parity);
 static BOOL     isValidStopBits(unsigned stopBits);
+static BOOL     isValidHandle(HANDLE handle);
 
 uint32_t serialPort_getLibraryVersion(void)
 {
@@ -122,6 +123,11 @@ static BOOL isValidStopBits(unsigned stopBits)
     }
 
     return FALSE;
+}
+
+static BOOL isValidHandle(HANDLE handle)
+{
+    return (handle != INVALID_HANDLE_VALUE) && (handle != NULL) ? TRUE : FALSE;
 }
 
 static BOOL setCommunicationTimeouts(HANDLE handle)
@@ -239,7 +245,7 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
     int numberOfBytesAvailable = 0;
     unsigned long etat;
 
-    if ((handle != INVALID_HANDLE_VALUE) && (handle != NULL))
+    if (isValidHandle(handle))
     {
         ClearCommError(handle, &etat, &status);
         numberOfBytesAvailable = status.cbInQue;
