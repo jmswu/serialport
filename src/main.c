@@ -7,6 +7,7 @@
 #define UNUSED_PARAM(x)     ((void)x)
 
 int test_done_message(void);
+int test_start_message(void);
 
 /* test need to be done with a loop back serial port */
 #define PORT_NUM_LOOP_BACK          (12)
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
 
     srand(time(NULL));
 
+    test_start_message();
+    
     TEST_SERIALPORT_CONNECT_NONE_EXIST_PORT_NUMBER();
     TEST_SERIALPORT_CONNECT_SUCCESSFULLY();
     TEST_SERIALPORT_CONNECT_WRONG_PARITY();
@@ -67,6 +70,12 @@ int test_done_message(void)
     printf("If you only see this message, it means all tests are passed\n");
     printf("--------------------------------------------------------------------\n");
 
+    return 0;
+}
+
+int test_start_message(void)
+{
+    printf("Running test, may take a while...\n");
     return 0;
 }
 
