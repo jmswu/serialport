@@ -22,6 +22,7 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void);
 void TEST_SERIALPORT_SEND_ONE_BYTE_INVALID_HANDLE(void);
 void TEST_SERIALPORT_RECEIVED_ONE_BYTE_INVALID_HANDLE(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void);
+void TEST_SERIALPORT_SEND_ARRAY_INVALID_HANDLE(void);
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void);
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void);
 
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
     TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE();
     TEST_SERIALPORT_SEND_ONE_BYTE_INVALID_HANDLE();
     TEST_SERIALPORT_RECEIVED_ONE_BYTE_INVALID_HANDLE();
+    TEST_SERIALPORT_SEND_ARRAY_INVALID_HANDLE();
 
     return test_done_message();
 }
@@ -204,6 +206,28 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
     TEST_ASSERT_EQUAL(rxDataLength, TEST_ARRAY_SIZE);
     TEST_ASSERT_EQUAL(rxDataLength, txDataLength);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(txArray, rxArray, TEST_ARRAY_SIZE);
+
+    serialPort_disconnect(handle);
+}
+
+void TEST_SERIALPORT_SEND_ARRAY_INVALID_HANDLE(void)
+{
+    const unsigned BAUD_RATE = 57600;
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, BAUD_RATE);
+
+    const unsigned TEST_ARRAY_SIZE = 256;
+    uint8_t txArray[TEST_ARRAY_SIZE];
+    uint8_t rxArray[TEST_ARRAY_SIZE];
+
+    test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
+
+    DWORD txDataLength = serialPort_sendArray(NULL, txArray, TEST_ARRAY_SIZE);
+    test_helper_wait_for_data_to_be_received(BAUD_RATE, TEST_ARRAY_SIZE);
+    DWORD rxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
+
+    TEST_ASSERT_EQUAL(txDataLength, 0);
+    TEST_ASSERT_EQUAL(rxDataLength, 0);
+    TEST_ASSERT_EQUAL(rxDataLength, txDataLength);
 
     serialPort_disconnect(handle);
 }
