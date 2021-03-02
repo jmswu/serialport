@@ -17,6 +17,9 @@ static BOOL     isVaildParity(unsigned parity);
 static BOOL     isValidStopBits(unsigned stopBits);
 static BOOL     isValidHandle(HANDLE handle);
 
+/*! \brief  Get library version number
+ *! \retval version number
+ */
 uint32_t serialPort_getLibraryVersion(void)
 {
     return SERIAL_PORT_VER_NUMBER;
@@ -142,6 +145,16 @@ static BOOL setCommunicationTimeouts(HANDLE handle)
     return SetCommTimeouts(handle, &timeouts);
 }
 
+/*! \brief  Connect to a com port
+ *!         Return a handle if open successfully. Return INVALID_HANDLE_VALUE 
+ *!         if there is error.
+ *! \param  unsigned        - com port number
+ *! \param  unsigned        - baud rate
+ *! \param  unsigned        - number of bits in a byte
+ *! \param  unsigned        - parity bytes
+ *! \param  unsigned        - number of stop bits
+ *! \retval HANDLE          - com port handle
+ */
 HANDLE serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataBits, unsigned parity, unsigned stopBits)
 {
 
@@ -198,6 +211,9 @@ HANDLE serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataB
     return handle;      
 }
 
+/*! \bried  Close or disconnect a com port
+ *! \param HANDLE           - com port handle
+ */ 
 void serialPort_disconnect(HANDLE handle)
 {
     if (isValidHandle(handle))
@@ -206,6 +222,11 @@ void serialPort_disconnect(HANDLE handle)
     }
 }
 
+/*! \bried  A simpler version of serial port connection
+ *! \param  unsigned        - com port number
+ *! \param  unsigned        - baud rate  
+ *! \retval HANDLE          - com port handle
+ */  
 HANDLE serialPort_connectSimple(unsigned portNumber, unsigned baudRate)
 {
     const unsigned DATA_BITS = 8;
@@ -219,6 +240,11 @@ HANDLE serialPort_connectSimple(unsigned portNumber, unsigned baudRate)
         STOP_BITS);
 }
 
+/*! \bried  Send one byte
+ *!         If the handle is invalid, nothing will be send
+ *! \param  HANDLE          - com port handle
+ *! \param  uint8_t         - byte to be send
+ */  
 void serialPort_sendByte(HANDLE handle, uint8_t oneByte)
 {
     if (isValidHandle(handle))
@@ -227,6 +253,13 @@ void serialPort_sendByte(HANDLE handle, uint8_t oneByte)
     } 
 }
 
+/*! \bried  Send an array of data
+ *!         If the handle is invalid, nothing will be send
+ *! \param  HANDLE          - com port handle
+ *! \param  uint8_t*        - pointer to data
+ *! \param  size_t          - size of the array
+ *! \retval DWORD           - actual number of bytes send
+ */  
 DWORD serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength)
 {
 	DWORD  numberOfbytesWritten = 0;
@@ -242,6 +275,10 @@ DWORD serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength
     return numberOfbytesWritten;
 }
 
+/*! \bried  Get the number of bytes available in the buffer
+ *! \param  HANDLE          - com port handle
+ *! \retval DWORD           - number of bytes available
+ */  
 DWORD serialPort_getNumberOfBytes(HANDLE handle)
 {
     struct _COMSTAT status;
@@ -257,6 +294,11 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
     return numberOfBytesAvailable;
 }
 
+/*! \bried  Get one byte for the serial port buffer
+ *!         If handle is invalid, it will always reutnr 0
+ *! \param  HANDLE          - com port handle
+ *! \retval uint8_t         - data received
+ */  
 uint8_t serialPort_getOneByte(HANDLE handle)
 {
     uint8_t oneByte = 0;
@@ -267,6 +309,13 @@ uint8_t serialPort_getOneByte(HANDLE handle)
     return oneByte;
 }
 
+/*! \bried  Receive an array of data
+ *!         If the handle is invalid, nothing will be received
+ *! \param  HANDLE          - com port handle
+ *! \param  uint8_t*        - pointer to data buffer
+ *! \param  size_t          - buffer size
+ *! \retval DWORD           - actual number of bytes received
+ */  
 DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
 {
     DWORD numberOfBytesRead = 0;
@@ -276,6 +325,6 @@ DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
 
     if (serialPort_getNumberOfBytes(handle) > 0)
         ReadFile(handle, data, dataLength, &numberOfBytesRead, NULL);
-        
+
     return numberOfBytesRead;
 }
