@@ -199,7 +199,7 @@ HANDLE serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataB
 
 void serialPort_disconnect(HANDLE handle)
 {
-    if (handle != INVALID_HANDLE_VALUE)
+    if (isValidHandle(handle))
     {
         CloseHandle(handle);
     }
@@ -220,15 +220,17 @@ HANDLE serialPort_connectSimple(unsigned portNumber, unsigned baudRate)
 
 void serialPort_sendByte(HANDLE handle, uint8_t oneByte)
 {
-    if (handle == INVALID_HANDLE_VALUE) return;
-    serialPort_sendArray(handle, &oneByte, 1);
+    if (isValidHandle(handle))
+    {
+        serialPort_sendArray(handle, &oneByte, 1);
+    } 
 }
 
 DWORD serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength)
 {
 	DWORD  numberOfbytesWritten = 0;
 
-    if (handle == INVALID_HANDLE_VALUE) return numberOfbytesWritten;
+    if (isValidHandle(handle) == FALSE) return numberOfbytesWritten;
     if (data == NULL) return numberOfbytesWritten;
 
 	WriteFile(handle,
@@ -243,11 +245,11 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
 {
     struct _COMSTAT status;
     int numberOfBytesAvailable = 0;
-    unsigned long etat;
+    unsigned long errorStatus;
 
     if (isValidHandle(handle))
     {
-        ClearCommError(handle, &etat, &status);
+        ClearCommError(handle, &errorStatus, &status);
         numberOfBytesAvailable = status.cbInQue;
     }
     
@@ -257,7 +259,10 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
 uint8_t serialPort_getOneByte(HANDLE handle)
 {
     uint8_t oneByte = 0;
-    serialPort_getArray(handle, &oneByte, 1);
+    if (isValidHandle(handle))
+    {
+        serialPort_getArray(handle, &oneByte, 1);
+    }
     return oneByte;
 }
 
@@ -265,7 +270,7 @@ DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
 {
     DWORD numberOfBytesRead = 0;
 
-    if (handle == INVALID_HANDLE_VALUE) return numberOfBytesRead;
+    if (isValidHandle(handle) == FALSE) return numberOfBytesRead;
     if (data == NULL) return numberOfBytesRead;
 
     ReadFile(handle, data, dataLength, &numberOfBytesRead, NULL);
