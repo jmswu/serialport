@@ -50,40 +50,40 @@ static BOOL setCommunicationBaudRate(HANDLE handle, unsigned baudRate)
 static BOOL setCommunicationDataBits(HANDLE handle, unsigned dataBits)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(handle, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(handle, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	dcbSerialParams.ByteSize = dataBits;
-	Status = SetCommState(handle, &dcbSerialParams);
-	return Status;
+	status = SetCommState(handle, &dcbSerialParams);
+	return status;
 }
 
 static BOOL setCommunicationParity(HANDLE handle, unsigned parity)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(handle, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(handle, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	dcbSerialParams.Parity = parity;
-	Status = SetCommState(handle, &dcbSerialParams);
-	return Status;
+	status = SetCommState(handle, &dcbSerialParams);
+	return status;
 }
 
 static BOOL setCommunicationStopBits(HANDLE handle, unsigned stopBits)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(handle, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(handle, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	dcbSerialParams.StopBits = stopBits;
-	Status = SetCommState(handle, &dcbSerialParams);
-	return Status;
+	status = SetCommState(handle, &dcbSerialParams);
+	return status;
 }
 
 static BOOL setCommunicationTimeouts(HANDLE handle)
@@ -201,6 +201,13 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
     }
     
     return numberOfBytesAvailable;
+}
+
+uint8_t serialPort_getOneByte(HANDLE handle)
+{
+    uint8_t oneByte = 0;
+    serialPort_getArray(handle, &oneByte, 1);
+    return oneByte;
 }
 
 DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
