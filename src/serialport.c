@@ -12,6 +12,8 @@ static BOOL     setCommunicationBaudRate(HANDLE handle, unsigned baudRate);
 static BOOL     setCommunicationDataBits(HANDLE handle, unsigned dataBits);
 static BOOL     setCommunicationParity(HANDLE handle, unsigned parity);
 static BOOL     setCommunicationStopBits(HANDLE handle, unsigned stopBits);
+static BOOL     isVaildParity(unsigned parity);
+static BOOL     isValidStopBits(unsigned stopBits);
 
 uint32_t serialPort_getLibraryVersion(void)
 {
@@ -86,6 +88,42 @@ static BOOL setCommunicationStopBits(HANDLE handle, unsigned stopBits)
 	return status;
 }
 
+static BOOL isVaildParity(unsigned parity)
+{
+    const unsigned ALL_PARITY_TYPE[] = {
+        NOPARITY,
+        EVENPARITY,
+        MARKPARITY,
+        ODDPARITY,
+        SPACEPARITY,
+    };
+
+    for(unsigned i = 0; i < sizeof(ALL_PARITY_TYPE) / sizeof(ALL_PARITY_TYPE[0]); i++)
+    {
+        if (ALL_PARITY_TYPE[i] == parity)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+static BOOL isValidStopBits(unsigned stopBits)
+{
+    const unsigned ALL_STOPBITS_TYPE[] = {
+        ONESTOPBIT,
+        ONE5STOPBITS,
+        TWOSTOPBITS,
+    };
+
+    for(unsigned i = 0; i < sizeof(ALL_STOPBITS_TYPE) / sizeof(ALL_STOPBITS_TYPE[0]); i++)
+    {
+        if (ALL_STOPBITS_TYPE[i] == stopBits)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
 static BOOL setCommunicationTimeouts(HANDLE handle)
 {
 	COMMTIMEOUTS timeouts = { 0 };
@@ -99,6 +137,13 @@ static BOOL setCommunicationTimeouts(HANDLE handle)
 
 HANDLE serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataBits, unsigned parity, unsigned stopBits)
 {
+
+    if (isVaildParity(parity) == FALSE)
+        return INVALID_HANDLE_VALUE;
+    
+    if (isValidStopBits(stopBits) == FALSE)
+        return INVALID_HANDLE_VALUE;
+
     HANDLE handle = openCommunication(portNumber);
 
     if (handle == INVALID_HANDLE_VALUE)
