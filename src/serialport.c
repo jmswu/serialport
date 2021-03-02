@@ -11,10 +11,3 @@ uint32_t serialPort_getLibraryVersion(void)
 {
     return SERIAL_PORT_VER_NUMBER;
 }
-
-int serialPort_connect(unsigned portNumber, unsigned baud)
-{
-    (void)portNumber;
-    (void)baud;
-    return 1;
-}

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "Unity/unity.h"
 #include "serialport.h"
 
 #define UNUSED_PARAM(x)     ((void)x)
@@ -10,6 +11,8 @@ int main(int argc, char **argv)
 
     UNUSED_PARAM(argc);
     UNUSED_PARAM(argv);
+
+    //TEST_ASSERT_EQUAL(0, 1);
 
     printf("Hello world!\n");
     return test_done_message();
