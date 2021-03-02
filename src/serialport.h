@@ -10,7 +10,7 @@ extern "C" {
 
 uint32_t    serialPort_getLibraryVersion(void);
 
-HANDLE      serialPort_connect(unsigned portNumber, unsigned baud, unsigned dataBits, unsigned parity, unsigned stopBits);
+HANDLE      serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataBits, unsigned parity, unsigned stopBits);
 HANDLE      serialPort_connectSimple(unsigned portNumber, unsigned baud);
 void        serialPort_disconnect(HANDLE handle);
 void        serialPort_sendByte(HANDLE handle, uint8_t data);
