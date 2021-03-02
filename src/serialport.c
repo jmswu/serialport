@@ -20,10 +20,10 @@ uint32_t serialPort_getLibraryVersion(void)
 
 static HANDLE openCommunication(unsigned portNumber)
 {
-	HANDLE hPort;
-	TCHAR portName[100];
+	HANDLE handle;
+	TCHAR portName[32];
 	wsprintf(portName, TEXT("\\\\.\\COM%d"), portNumber);
-	hPort = CreateFile(portName,            //port name 
+	handle = CreateFile(portName,           //port name 
 		GENERIC_READ | GENERIC_WRITE,       //Read/Write   				 
 		0,            // No Sharing                               
 		NULL,         // No Security                              
@@ -31,20 +31,20 @@ static HANDLE openCommunication(unsigned portNumber)
 		0,            // Non Overlapped I/O                           
 		NULL);        // Null for Comm Devices
 
-    return hPort;
+    return handle;
 }
 
 static BOOL setCommunicationBaudRate(HANDLE handle, unsigned baudRate)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(handle, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(handle, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	dcbSerialParams.BaudRate = baudRate;
-	Status = SetCommState(handle, &dcbSerialParams);
-	return Status;
+	status = SetCommState(handle, &dcbSerialParams);
+	return status;
 }
 
 static BOOL setCommunicationDataBits(HANDLE handle, unsigned dataBits)
@@ -89,61 +89,61 @@ static BOOL setCommunicationStopBits(HANDLE handle, unsigned stopBits)
 static BOOL setCommunicationTimeouts(HANDLE handle)
 {
 	COMMTIMEOUTS timeouts = { 0 };
-	timeouts.ReadIntervalTimeout = 50;
-	timeouts.ReadTotalTimeoutConstant = 50;
-	timeouts.ReadTotalTimeoutMultiplier = 10;
-	timeouts.WriteTotalTimeoutConstant = 50;
-	timeouts.WriteTotalTimeoutMultiplier = 10;
+	// timeouts.ReadIntervalTimeout = 50;
+	// timeouts.ReadTotalTimeoutConstant = 50;
+	// timeouts.ReadTotalTimeoutMultiplier = 10;
+	// timeouts.WriteTotalTimeoutConstant = 50;
+	// timeouts.WriteTotalTimeoutMultiplier = 10;
     return SetCommTimeouts(handle, &timeouts);
 }
 
 HANDLE serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataBits, unsigned parity, unsigned stopBits)
 {
-    HANDLE hPort = openCommunication(portNumber);
+    HANDLE handle = openCommunication(portNumber);
 
-    if (hPort == INVALID_HANDLE_VALUE)
+    if (handle == INVALID_HANDLE_VALUE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
         
-	if (setCommunicationTimeouts(hPort) == FALSE)
+	if (setCommunicationTimeouts(handle) == FALSE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-	if (SetCommMask(hPort, EV_RXCHAR) == FALSE)
+	if (SetCommMask(handle, 0) == FALSE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-    if (setCommunicationBaudRate(hPort, baudRate) == FALSE)
+    if (setCommunicationBaudRate(handle, baudRate) == FALSE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-    if (setCommunicationDataBits(hPort, dataBits == FALSE))
+    if (setCommunicationDataBits(handle, dataBits == FALSE))
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-    if (setCommunicationParity(hPort, parity) == FALSE)
+    if (setCommunicationParity(handle, parity) == FALSE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-    if (setCommunicationStopBits(hPort, stopBits) == FALSE)
+    if (setCommunicationStopBits(handle, stopBits) == FALSE)
     {
-        serialPort_disconnect(hPort);
+        serialPort_disconnect(handle);
         return INVALID_HANDLE_VALUE;
     }
 
-    return hPort;      
+    return handle;      
 }
 
 void serialPort_disconnect(HANDLE handle)
@@ -152,4 +152,64 @@ void serialPort_disconnect(HANDLE handle)
     {
         CloseHandle(handle);
     }
+}
+
+HANDLE serialPort_connectSimple(unsigned portNumber, unsigned baudRate)
+{
+    const unsigned DATA_BITS = 8;
+    const unsigned STOP_BITS = ONESTOPBIT;
+    const unsigned PARITY = NOPARITY;
+
+    return serialPort_connect(portNumber,
+        baudRate,
+        DATA_BITS,
+        PARITY,
+        STOP_BITS);
+}
+
+void serialPort_sendByte(HANDLE handle, uint8_t oneByte)
+{
+    if (handle == INVALID_HANDLE_VALUE) return;
+    serialPort_sendArray(handle, &oneByte, 1);
+}
+
+DWORD serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength)
+{
+	DWORD  numberOfbytesWritten = 0;
+
+    if (handle == INVALID_HANDLE_VALUE) return numberOfbytesWritten;
+    if (data == NULL) return numberOfbytesWritten;
+
+	WriteFile(handle,
+		    data,
+		    dataLength,
+		    &numberOfbytesWritten,
+		    NULL);
+    return numberOfbytesWritten;
+}
+
+DWORD serialPort_getNumberOfBytes(HANDLE handle)
+{
+    struct _COMSTAT status;
+    int numberOfBytesAvailable = 0;
+    unsigned long etat;
+
+    if (handle != INVALID_HANDLE_VALUE)
+    {
+        ClearCommError(handle, &etat, &status);
+        numberOfBytesAvailable = status.cbInQue;
+    }
+    
+    return numberOfBytesAvailable;
+}
+
+DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
+{
+    DWORD numberOfBytesRead = 0;
+
+    if (handle == INVALID_HANDLE_VALUE) return numberOfBytesRead;
+    if (data == NULL) return numberOfBytesRead;
+
+    ReadFile(handle, data, dataLength, &numberOfBytesRead, NULL);
+    return numberOfBytesRead;
 }
