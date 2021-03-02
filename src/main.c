@@ -21,6 +21,7 @@ void TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void);
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void);
+void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void);
 
 void test_helper_fill_random_byte(uint8_t *array, unsigned arrayLength);
 
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
     TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE();
     TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY();
     TEST_SERIALPORT_GET_NUMBER_OF_BYTES();
+    TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE();
 
     return test_done_message();
 }
@@ -181,6 +183,27 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void)
     unsigned numberOfDataAvailable = serialPort_getNumberOfBytes(handle);
 
     TEST_ASSERT_EQUAL(randomDataLength, numberOfDataAvailable);
+
+    serialPort_disconnect(handle);
+}
+
+void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void)
+{
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 57600);
+
+    unsigned randomDataLength = rand() & 0xFF;
+    for(unsigned i = 0; i < randomDataLength; i++)
+    {
+        uint8_t randomByte = rand() & 0xFF;
+        serialPort_sendByte(handle, randomByte);
+    }
+
+    /* wait for data to be recevied */
+    Sleep(randomDataLength/8);
+
+    unsigned numberOfDataAvailable = serialPort_getNumberOfBytes(NULL);
+
+    TEST_ASSERT_EQUAL_UINT(0, numberOfDataAvailable);
 
     serialPort_disconnect(handle);
 }

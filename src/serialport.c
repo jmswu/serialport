@@ -239,7 +239,7 @@ DWORD serialPort_getNumberOfBytes(HANDLE handle)
     int numberOfBytesAvailable = 0;
     unsigned long etat;
 
-    if (handle != INVALID_HANDLE_VALUE)
+    if ((handle != INVALID_HANDLE_VALUE) && (handle != NULL))
     {
         ClearCommError(handle, &etat, &status);
         numberOfBytesAvailable = status.cbInQue;
