@@ -1,2 +1,2 @@
-# serialport
-Serial port in C
+# serialport c library
+Serial port in C for Windows
