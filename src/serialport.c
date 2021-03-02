@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include "serialport.h"
 
 #define SERIAL_PORT_VER_MAJOR       (0U)
@@ -273,6 +274,8 @@ DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
     if (isValidHandle(handle) == FALSE) return numberOfBytesRead;
     if (data == NULL) return numberOfBytesRead;
 
-    ReadFile(handle, data, dataLength, &numberOfBytesRead, NULL);
+    if (serialPort_getNumberOfBytes(handle) > 0)
+        ReadFile(handle, data, dataLength, &numberOfBytesRead, NULL);
+        
     return numberOfBytesRead;
 }

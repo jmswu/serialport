@@ -13,17 +13,19 @@ int test_done_message(void);
 #define PORT_NUM_NONE_EXIST_1       (30)
 #define PORT_NUM_NONE_EXIST_2       (31)
 void TEST_SERIALPORT_CONNECT_NONE_EXIST_PORT_NUMBER(void);
+void TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER(void);
 void TEST_SERIALPORT_CONNECT_SUCCESSFULLY(void);
+void TEST_SERIALPORT_CONNECT_SIMPLE_SUCCESSFULLY(void);
 void TEST_SERIALPORT_CONNECT_WRONG_PARITY(void);
 void TEST_SERIALPORT_CONNECT_WRONG_STOPBITS(void);
-void TEST_SERIALPORT_CONNECT_SIMPLE_SUCCESSFULLY(void);
-void TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void);
+void TEST_SERIALPORT_SEND_ONE_BYTE_WRONG_HANDLE(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void);
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void);
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void);
 
 void test_helper_fill_random_byte(uint8_t *array, unsigned arrayLength);
+void test_helper_wait_for_data_to_be_received(unsigned baudRate, unsigned dataLength);
 
 int main(int argc, char **argv)
 {
@@ -43,6 +45,7 @@ int main(int argc, char **argv)
     TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY();
     TEST_SERIALPORT_GET_NUMBER_OF_BYTES();
     TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE();
+    TEST_SERIALPORT_SEND_ONE_BYTE_WRONG_HANDLE();
 
     return test_done_message();
 }
@@ -123,12 +126,14 @@ void TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER(void)
 
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
 {
-    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 19200);
+    const unsigned BAUD_RATE = 19200;
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, BAUD_RATE);
 
     /* test with sequcnecial data */
     for(unsigned i = 0; i < 256; i++)
     {
         serialPort_sendByte(handle, i);
+        test_helper_wait_for_data_to_be_received(BAUD_RATE, 1);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(i, rxData);
     }
@@ -138,6 +143,7 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
     {
         uint8_t txData = rand() & 0xFF;
         serialPort_sendByte(handle, txData);
+        test_helper_wait_for_data_to_be_received(BAUD_RATE, 1);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(txData, rxData);
     }
@@ -145,9 +151,26 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
     serialPort_disconnect(handle);
 }
 
+void TEST_SERIALPORT_SEND_ONE_BYTE_WRONG_HANDLE(void)
+{
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 19200);
+
+    /* test with random data */
+    for(unsigned i = 0; i < 256; i++)
+    {
+        uint8_t txData = rand() & 0xFF;
+        serialPort_sendByte(NULL, txData);
+        uint8_t rxData = serialPort_getOneByte(handle);
+        TEST_ASSERT_EQUAL_UINT8(0, rxData);
+    }
+
+    serialPort_disconnect(handle);
+}
+
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
 {
-    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 57600);
+    const unsigned BAUD_RATE = 57600;
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, BAUD_RATE);
 
     const unsigned TEST_ARRAY_SIZE = 256;
     uint8_t txArray[TEST_ARRAY_SIZE];
@@ -156,6 +179,7 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
     test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
 
     DWORD txDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
+    test_helper_wait_for_data_to_be_received(BAUD_RATE, TEST_ARRAY_SIZE);
     DWORD rxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
 
     TEST_ASSERT_EQUAL(txDataLength, TEST_ARRAY_SIZE);
@@ -168,7 +192,8 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
 
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void)
 {
-    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 57600);
+    const unsigned BAUD_RATE = 57600;
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, BAUD_RATE);
 
     unsigned randomDataLength = rand() & 0xFF;
     for(unsigned i = 0; i < randomDataLength; i++)
@@ -177,8 +202,7 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void)
         serialPort_sendByte(handle, randomByte);
     }
 
-    /* wait for data to be recevied */
-    Sleep(randomDataLength/8);
+    test_helper_wait_for_data_to_be_received(BAUD_RATE, randomDataLength);
 
     unsigned numberOfDataAvailable = serialPort_getNumberOfBytes(handle);
 
@@ -189,7 +213,8 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void)
 
 void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void)
 {
-    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 57600);
+    const unsigned BAUD_RATE = 57600;
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, BAUD_RATE);
 
     unsigned randomDataLength = rand() & 0xFF;
     for(unsigned i = 0; i < randomDataLength; i++)
@@ -198,8 +223,7 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void)
         serialPort_sendByte(handle, randomByte);
     }
 
-    /* wait for data to be recevied */
-    Sleep(randomDataLength/8);
+    test_helper_wait_for_data_to_be_received(BAUD_RATE, randomDataLength);
 
     unsigned numberOfDataAvailable = serialPort_getNumberOfBytes(NULL);
 
@@ -217,4 +241,12 @@ void test_helper_fill_random_byte(uint8_t *array, unsigned arrayLength)
     {
         array[i] = rand() & 0xFF;
     }
+}
+
+void test_helper_wait_for_data_to_be_received(unsigned baudRate, unsigned dataLength)
+{
+    const float TIME_ONE_BYTE_IN_ms = ((float)1000/(float)baudRate) * 10;
+    const float TIME_ROUNDING_ERROR_IN_ms = 1;
+    const float TIME_TOTAL_IN_ms = (TIME_ONE_BYTE_IN_ms * dataLength) + TIME_ROUNDING_ERROR_IN_ms;
+    Sleep((unsigned)TIME_TOTAL_IN_ms);
 }
