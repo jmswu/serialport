@@ -12,6 +12,7 @@ int test_done_message(void);
 #define PORT_NUM_NONE_EXIST_2       (31)
 void TEST_SERIALPORT_CONNECT_NONE_EXIST_PORT_NUMBER(void);
 void TEST_SERIALPORT_CONNECT_SUCCESSFULLY(void);
+void TEST_SERIALPORT_CONNECT_WRONG_PARITY(void);
 
 int main(int argc, char **argv)
 {
@@ -21,6 +22,7 @@ int main(int argc, char **argv)
 
     TEST_SERIALPORT_CONNECT_NONE_EXIST_PORT_NUMBER();
     TEST_SERIALPORT_CONNECT_SUCCESSFULLY();
+    TEST_SERIALPORT_CONNECT_WRONG_PARITY();
 
     return test_done_message();
 }
@@ -57,4 +59,15 @@ void TEST_SERIALPORT_CONNECT_SUCCESSFULLY(void)
     HANDLE handle = serialPort_connect(PORT_NUM_LOOP_BACK, 9600, 8, NOPARITY, ONESTOPBIT);
     TEST_ASSERT_NOT_EQUAL(INVALID_HANDLE_VALUE, handle);
     serialPort_disconnect(handle);
+}
+
+void TEST_SERIALPORT_CONNECT_WRONG_PARITY(void)
+{
+    HANDLE handle_1 = serialPort_connect(PORT_NUM_LOOP_BACK, 9600, 8, 5, ONESTOPBIT);
+    TEST_ASSERT_EQUAL(INVALID_HANDLE_VALUE, handle_1);
+    serialPort_disconnect(handle_1);
+
+    HANDLE handle_2 = serialPort_connect(PORT_NUM_LOOP_BACK, 9600, 8, ~0, ONESTOPBIT);
+    TEST_ASSERT_EQUAL(INVALID_HANDLE_VALUE, handle_2);
+    serialPort_disconnect(handle_2);
 }
