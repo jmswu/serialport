@@ -209,13 +209,13 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
 
     test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
 
-    DWORD txDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
+    DWORD actualTxDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
     test_helper_wait_for_data_to_be_received(BAUD_RATE, TEST_ARRAY_SIZE);
-    DWORD rxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
+    DWORD actualRxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
 
-    TEST_ASSERT_EQUAL(txDataLength, TEST_ARRAY_SIZE);
-    TEST_ASSERT_EQUAL(rxDataLength, TEST_ARRAY_SIZE);
-    TEST_ASSERT_EQUAL(rxDataLength, txDataLength);
+    TEST_ASSERT_EQUAL(TEST_ARRAY_SIZE, actualTxDataLength);
+    TEST_ASSERT_EQUAL(TEST_ARRAY_SIZE, actualRxDataLength);
+    TEST_ASSERT_EQUAL(actualRxDataLength, actualTxDataLength);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(txArray, rxArray, TEST_ARRAY_SIZE);
 
     serialPort_disconnect(handle);
@@ -232,13 +232,13 @@ void TEST_SERIALPORT_SEND_ARRAY_INVALID_HANDLE(void)
 
     test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
 
-    DWORD txDataLength = serialPort_sendArray(NULL, txArray, TEST_ARRAY_SIZE);
+    DWORD actualTxDataLength = serialPort_sendArray(NULL, txArray, TEST_ARRAY_SIZE);
     test_helper_wait_for_data_to_be_received(BAUD_RATE, TEST_ARRAY_SIZE);
-    DWORD rxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
+    DWORD actualRxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
 
-    TEST_ASSERT_EQUAL(txDataLength, 0);
-    TEST_ASSERT_EQUAL(rxDataLength, 0);
-    TEST_ASSERT_EQUAL(rxDataLength, txDataLength);
+    TEST_ASSERT_EQUAL(0, actualTxDataLength);
+    TEST_ASSERT_EQUAL(0, actualRxDataLength);
+    TEST_ASSERT_EQUAL(actualRxDataLength, actualTxDataLength);
 
     serialPort_disconnect(handle);
 }
@@ -254,13 +254,13 @@ void TEST_SERIALPORT_RECEIVE_ARRAY_INVALID_HANDLE(void)
 
     test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
 
-    DWORD txDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
+    DWORD actualTxDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
     test_helper_wait_for_data_to_be_received(BAUD_RATE, TEST_ARRAY_SIZE);
-    DWORD rxDataLength = serialPort_getArray(NULL, rxArray, TEST_ARRAY_SIZE);
+    DWORD actualRxDataLength = serialPort_getArray(NULL, rxArray, TEST_ARRAY_SIZE);
 
-    TEST_ASSERT_EQUAL(TEST_ARRAY_SIZE, txDataLength);
-    TEST_ASSERT_EQUAL(0, rxDataLength);
-    TEST_ASSERT_NOT_EQUAL(rxDataLength, txDataLength);
+    TEST_ASSERT_EQUAL(TEST_ARRAY_SIZE, actualTxDataLength);
+    TEST_ASSERT_EQUAL(0, actualRxDataLength);
+    TEST_ASSERT_NOT_EQUAL(actualRxDataLength, actualTxDataLength);
 
     serialPort_disconnect(handle);
 }
