@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "Unity/unity.h"
 #include "serialport.h"
 
@@ -23,6 +25,8 @@ int main(int argc, char **argv)
 
     UNUSED_PARAM(argc);
     UNUSED_PARAM(argv);
+
+    srand(time(NULL));
 
     TEST_SERIALPORT_CONNECT_NONE_EXIST_PORT_NUMBER();
     TEST_SERIALPORT_CONNECT_SUCCESSFULLY();
@@ -113,11 +117,21 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
 {
     HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 19200);
 
+    /* test with sequcnecial data */
     for(unsigned i = 0; i < 256; i++)
     {
         serialPort_sendByte(handle, i);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(i, rxData);
+    }
+
+    /* test with random data */
+    for(unsigned i = 0; i < 256; i++)
+    {
+        uint8_t txData = rand() & 0xFF;
+        serialPort_sendByte(handle, txData);
+        uint8_t rxData = serialPort_getOneByte(handle);
+        TEST_ASSERT_EQUAL_UINT8(txData, rxData);
     }
 
     serialPort_disconnect(handle);
