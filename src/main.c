@@ -19,6 +19,9 @@ void TEST_SERIALPORT_CONNECT_WRONG_STOPBITS(void);
 void TEST_SERIALPORT_CONNECT_SIMPLE_SUCCESSFULLY(void);
 void TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER(void);
 void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void);
+void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void);
+
+void test_helper_fill_random_byte(uint8_t *array, unsigned arrayLength);
 
 int main(int argc, char **argv)
 {
@@ -35,6 +38,7 @@ int main(int argc, char **argv)
     TEST_SERIALPORT_CONNECT_SIMPLE_SUCCESSFULLY();
     TEST_SERIALPORT_CONNECT_SIMPLE_NONE_EXIST_PORT_NUMBER();
     TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE();
+    TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY();
 
     return test_done_message();
 }
@@ -135,4 +139,36 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
     }
 
     serialPort_disconnect(handle);
+}
+
+void TEST_SERIALPORT_SEND_AND_RECEIVE_ARRAY(void)
+{
+    HANDLE handle = serialPort_connectSimple(PORT_NUM_LOOP_BACK, 57600);
+
+    const unsigned TEST_ARRAY_SIZE = 256;
+    uint8_t txArray[TEST_ARRAY_SIZE];
+    uint8_t rxArray[TEST_ARRAY_SIZE];
+
+    test_helper_fill_random_byte(txArray, TEST_ARRAY_SIZE);
+
+    DWORD txDataLength = serialPort_sendArray(handle, txArray, TEST_ARRAY_SIZE);
+    DWORD rxDataLength = serialPort_getArray(handle, rxArray, TEST_ARRAY_SIZE);
+
+    TEST_ASSERT_EQUAL(txDataLength, TEST_ARRAY_SIZE);
+    TEST_ASSERT_EQUAL(rxDataLength, TEST_ARRAY_SIZE);
+    TEST_ASSERT_EQUAL(rxDataLength, txDataLength);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(txArray, rxArray, TEST_ARRAY_SIZE);
+
+    serialPort_disconnect(handle);
+}
+
+
+void test_helper_fill_random_byte(uint8_t *array, unsigned arrayLength)
+{
+    if (array == NULL) return;
+
+    for(unsigned i = 0; i < arrayLength; i++)
+    {
+        array[i] = rand() & 0xFF;
+    }
 }
