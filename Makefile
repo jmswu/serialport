@@ -63,12 +63,12 @@ $(TARGET): $(FILES_OBJECT)
 # build object files
 $(FOLDER_BUILD)/%.o: $(FOLDER_SOURCE_1)/%.c
 	@$(MAKE_BUILD_FOLDER)
-	@$(CC) -I$(FOLDER_SOURCE_1) -I$(FOLDER_SOURCE_2) -I$(FO) $(CFLAGS) -c $< -o $@
+	@$(CC) -I$(FOLDER_SOURCE_1) $(CFLAGS) -c $< -o $@
 
 # build object files
 $(FOLDER_BUILD)/%.o: $(FOLDER_SOURCE_2)/%.c
 	@$(MAKE_BUILD_FOLDER)
-	@$(CC) -I$(FOLDER_SOURCE) -I$(FO) $(CFLAGS) -c $< -o $@
+	@$(CC) -I$(FOLDER_SOURCE_2) $(CFLAGS) -c $< -o $@
 
 # clean build folder
 .PHONY: clean
