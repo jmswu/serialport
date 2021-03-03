@@ -147,7 +147,7 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
     /* test with sequcnecial data */
     for(unsigned i = 0; i < 256; i++)
     {
-        serialPort_sendByte(handle, i);
+        serialPort_sendOneByte(handle, i);
         test_helper_wait_for_data_to_be_received(BAUD_RATE, 1);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(i, rxData);
@@ -157,7 +157,7 @@ void TEST_SERIALPORT_SEND_AND_RECEIVE_ONE_BYTE(void)
     for(unsigned i = 0; i < 256; i++)
     {
         uint8_t txData = rand() & 0xFF;
-        serialPort_sendByte(handle, txData);
+        serialPort_sendOneByte(handle, txData);
         test_helper_wait_for_data_to_be_received(BAUD_RATE, 1);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(txData, rxData);
@@ -174,7 +174,7 @@ void TEST_SERIALPORT_SEND_ONE_BYTE_INVALID_HANDLE(void)
     for(unsigned i = 0; i < 256; i++)
     {
         uint8_t txData = rand() & 0xFF;
-        serialPort_sendByte(NULL, txData);
+        serialPort_sendOneByte(NULL, txData);
         uint8_t rxData = serialPort_getOneByte(handle);
         TEST_ASSERT_EQUAL_UINT8(0, rxData);
     }
@@ -190,7 +190,7 @@ void TEST_SERIALPORT_RECEIVED_ONE_BYTE_INVALID_HANDLE(void)
     for(unsigned i = 0; i < 256; i++)
     {
         uint8_t txData = rand() & 0xFF;
-        serialPort_sendByte(handle, txData);
+        serialPort_sendOneByte(handle, txData);
         uint8_t rxData = serialPort_getOneByte(NULL);
         TEST_ASSERT_EQUAL_UINT8(0, rxData);
     }
@@ -274,7 +274,7 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES(void)
     for(unsigned i = 0; i < randomDataLength; i++)
     {
         uint8_t randomByte = rand() & 0xFF;
-        serialPort_sendByte(handle, randomByte);
+        serialPort_sendOneByte(handle, randomByte);
     }
 
     test_helper_wait_for_data_to_be_received(BAUD_RATE, randomDataLength);
@@ -295,7 +295,7 @@ void TEST_SERIALPORT_GET_NUMBER_OF_BYTES_INVALID_HANDLE(void)
     for(unsigned i = 0; i < randomDataLength; i++)
     {
         uint8_t randomByte = rand() & 0xFF;
-        serialPort_sendByte(handle, randomByte);
+        serialPort_sendOneByte(handle, randomByte);
     }
 
     test_helper_wait_for_data_to_be_received(BAUD_RATE, randomDataLength);

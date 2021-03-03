@@ -13,7 +13,7 @@ uint32_t    serialPort_getLibraryVersion(void);
 HANDLE      serialPort_connect(unsigned portNumber, unsigned baudRate, unsigned dataBits, unsigned parity, unsigned stopBits);
 HANDLE      serialPort_connectSimple(unsigned portNumber, unsigned baudRate);
 void        serialPort_disconnect(HANDLE handle);
-void        serialPort_sendByte(HANDLE handle, uint8_t oneByte);
+void        serialPort_sendOneByte(HANDLE handle, uint8_t oneByte);
 DWORD       serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength);
 DWORD       serialPort_getNumberOfBytes(HANDLE handle);
 uint8_t     serialPort_getOneByte(HANDLE handle);

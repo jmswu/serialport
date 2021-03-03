@@ -245,7 +245,7 @@ HANDLE serialPort_connectSimple(unsigned portNumber, unsigned baudRate)
  *! \param  HANDLE          - com port handle
  *! \param  uint8_t         - byte to be send
  */  
-void serialPort_sendByte(HANDLE handle, uint8_t oneByte)
+void serialPort_sendOneByte(HANDLE handle, uint8_t oneByte)
 {
     if (isValidHandle(handle))
     {
