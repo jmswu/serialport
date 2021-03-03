@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <Windows.h>
+#include <windows.h>
 
 uint32_t    serialPort_getLibraryVersion(void);
 
