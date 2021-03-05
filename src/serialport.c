@@ -4,7 +4,7 @@
 
 #define SERIAL_PORT_VER_MAJOR       (0U)
 #define SERIAL_PORT_VER_MINOR       (0U)
-#define SERIAL_PORT_VER_PATCH       (1U)
+#define SERIAL_PORT_VER_PATCH       (2U)
 #define SERIAL_PORT_VER_NUMBER      ((SERIAL_PORT_VER_MAJOR << 16) | (SERIAL_PORT_VER_MINOR << 8) | (SERIAL_PORT_VER_PATCH))
 
 static HANDLE   openCommunication(unsigned portNumber);
@@ -260,7 +260,7 @@ void serialPort_sendOneByte(HANDLE handle, uint8_t oneByte)
  *! \param  size_t          - size of the array
  *! \retval DWORD           - actual number of bytes send
  */  
-DWORD serialPort_sendArray(HANDLE handle, const uint8_t *data, size_t dataLength)
+DWORD serialPort_sendArray(HANDLE handle, const uint8_t * const data, size_t dataLength)
 {
 	DWORD  numberOfbytesWritten = 0;
 
@@ -316,7 +316,7 @@ uint8_t serialPort_getOneByte(HANDLE handle)
  *! \param  size_t          - buffer size
  *! \retval DWORD           - actual number of bytes received
  */  
-DWORD serialPort_getArray(HANDLE handle, uint8_t *data, size_t dataLength)
+DWORD serialPort_getArray(HANDLE handle, uint8_t * const data, size_t dataLength)
 {
     DWORD numberOfBytesRead = 0;
 
